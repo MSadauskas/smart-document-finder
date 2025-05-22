@@ -117,9 +117,10 @@ type MainWindowViewModel() =
                     for result in relevantResults do
                         let (DocumentPath path) = result.DocumentPath
                         let fileName = System.IO.Path.GetFileName(path)
-                        let preview = if result.ChunkContent.Length > 150 
-                                     then result.ChunkContent.Substring(0, 150) + "..."
-                                     else result.ChunkContent
+                        let preview = 
+                            if result.ChunkContent.Length > 150 
+                            then result.ChunkContent.Substring(0, 150) + "..."
+                            else result.ChunkContent
                         let vm = SearchResultViewModel(fileName, preview, 0.0) // Hide score
                         searchResults.Add(vm)
                     this.StatusText <- $"Found {relevantResults.Length} relevant documents"
