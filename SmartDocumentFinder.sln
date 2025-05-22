@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SmartDocumentFinder.Core", "SmartDocumentFinder.Core\SmartDocumentFinder.Core.fsproj", "{7ABADD39-1009-4279-BE33-6ADE285C038F}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SmartDocumentFinder.DocumentProcessor", "SmartDocumentFinder.DocumentProcessor\SmartDocumentFinder.DocumentProcessor.fsproj", "{EACFAA2B-F7AB-455C-BCA6-ACF24AB307A6}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SmartDocumentFinder.VectorStore", "SmartDocumentFinder.VectorStore\SmartDocumentFinder.VectorStore.fsproj", "{F8E51473-2C85-4CCF-9412-AA803DA5767B}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SmartDocumentFinder.SearchEngine", "SmartDocumentFinder.SearchEngine\SmartDocumentFinder.SearchEngine.fsproj", "{EF00558E-C480-4BD3-BE32-C30C1CDD0680}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SmartDocumentFinder.UI", "SmartDocumentFinder.UI\SmartDocumentFinder.UI.fsproj", "{C40CBC90-AEF6-4709-BED2-C5CFF64015E8}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SmartDocumentFinder.Test", "SmartDocumentFinder.Test\SmartDocumentFinder.Test.fsproj", "{3F3113E4-A687-4A73-B62D-68AA024509BE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7ABADD39-1009-4279-BE33-6ADE285C038F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7ABADD39-1009-4279-BE33-6ADE285C038F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7ABADD39-1009-4279-BE33-6ADE285C038F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7ABADD39-1009-4279-BE33-6ADE285C038F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EACFAA2B-F7AB-455C-BCA6-ACF24AB307A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EACFAA2B-F7AB-455C-BCA6-ACF24AB307A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EACFAA2B-F7AB-455C-BCA6-ACF24AB307A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EACFAA2B-F7AB-455C-BCA6-ACF24AB307A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8E51473-2C85-4CCF-9412-AA803DA5767B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8E51473-2C85-4CCF-9412-AA803DA5767B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8E51473-2C85-4CCF-9412-AA803DA5767B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8E51473-2C85-4CCF-9412-AA803DA5767B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF00558E-C480-4BD3-BE32-C30C1CDD0680}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF00558E-C480-4BD3-BE32-C30C1CDD0680}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF00558E-C480-4BD3-BE32-C30C1CDD0680}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF00558E-C480-4BD3-BE32-C30C1CDD0680}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C40CBC90-AEF6-4709-BED2-C5CFF64015E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C40CBC90-AEF6-4709-BED2-C5CFF64015E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C40CBC90-AEF6-4709-BED2-C5CFF64015E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C40CBC90-AEF6-4709-BED2-C5CFF64015E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F3113E4-A687-4A73-B62D-68AA024509BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F3113E4-A687-4A73-B62D-68AA024509BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F3113E4-A687-4A73-B62D-68AA024509BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F3113E4-A687-4A73-B62D-68AA024509BE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

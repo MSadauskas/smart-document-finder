@@ -1,0 +1,7 @@
+This is a test document for the Smart Document Finder application.
+
+It contains multiple sentences. Each sentence should be processed correctly. The text chunking algorithm should break this content into smaller, manageable pieces.
+
+This document will help us verify that the document processing pipeline works as expected. We can test text extraction and chunking functionality with this sample content.
+
+The system should be able to identify this as a plain text file and extract all the content successfully.

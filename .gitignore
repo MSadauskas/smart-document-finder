@@ -1,0 +1,25 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.docstates
+
+## Visual Studio
+.vs/
+.vscode/
+
+## Database files
+*.db
+*.db-shm
+*.db-wal
+
+## Test outputs
+/tmp/
+*.tmp
+*.log
+
+## OS
+.DS_Store
+Thumbs.db

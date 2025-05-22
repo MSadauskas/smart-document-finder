@@ -1,0 +1,1 @@
+Software engineering best practices include clean code, testing, and documentation. This document covers various programming principles and design patterns.
