@@ -6,20 +6,29 @@ open SmartDocumentFinder.SearchEngine
 
 [<EntryPoint>]
 let main argv =
-    printfn "=== Smart Document Finder - Final Test ==="
+    printfn "=== Smart Document Finder - Cross-Platform Test ==="
+    printfn "🖥️  %s" (CrossPlatform.getPlatformInfo())
     
     let testWorkflow () = async {
-        // Initialize
+        // Initialize with cross-platform paths
         let processor = DocumentService.DocumentProcessor() :> IDocumentProcessor
         let embeddingService = SimpleEmbeddingService() :> IEmbeddingService
-        let vectorStore = SqliteVectorStore("/tmp/final-test.db") :> IVectorStore
-        let searchEngine = BinarySearchEngine(vectorStore, processor) :> ISearchEngine
+        let dbPath = CrossPlatform.getTestDatabasePath()
+        let vectorStore = SqliteVectorStore(dbPath) :> IVectorStore
+        let searchEngine = BinarySearchEngine(vectorStore, processor, embeddingService, dbPath) :> ISearchEngine
         
-        let! _ = Database.initializeDatabase("/tmp/final-test.db")
+        printfn "📁 Database: %s" dbPath
         
-        // Test folder scanning
-        printfn "📁 Scanning folder..."
-        match! FolderScanner.scanFolder("/home/mikas/Development/SmartDocumentFinder/test-docs") with
+        // Ensure directory exists (cross-platform)
+        CrossPlatform.ensureDirectoryExists(dbPath)
+        
+        let! _ = Database.initializeDatabase(dbPath)
+        
+        // Test folder scanning with cross-platform path
+        let testDocsPath = CrossPlatform.getTestDocsPath()
+        printfn "📂 Test docs: %s" testDocsPath
+        
+        match! FolderScanner.scanFolder(testDocsPath) with
         | Ok documents ->
             printfn $"✅ Found {documents.Length} documents"
             
@@ -43,9 +52,15 @@ let main argv =
                     for result in response.Results do
                         printfn $"  - Score: {(let (SearchResultScore s) = result.Score in s):F3}"
                     return true
-                | Error _ -> return false
-            | Error _ -> return false
-        | Error _ -> return false
+                | Error err -> 
+                    printfn "❌ Search failed: %A" err
+                    return false
+            | Error err -> 
+                printfn "❌ Indexing failed: %A" err
+                return false
+        | Error err -> 
+            printfn "❌ Folder scan failed: %A" err
+            return false
     }
     
     let success = testWorkflow () |> Async.RunSynchronously

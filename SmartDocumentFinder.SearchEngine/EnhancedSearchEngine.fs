@@ -4,7 +4,7 @@ open SmartDocumentFinder.Core
 open SmartDocumentFinder.VectorStore
 
 type EnhancedSearchEngine(vectorStore: IVectorStore, documentProcessor: IDocumentProcessor, embeddingService: IEmbeddingService, ?dbPath: string) =
-    let path = defaultArg dbPath "/home/mikas/.smartdoc/data.db"
+    let path = defaultArg dbPath (CrossPlatform.getDefaultDatabasePath())
     let metadataStore = DocumentMetadataStore(path)
     let contentLookup = ContentLookup(path)
     

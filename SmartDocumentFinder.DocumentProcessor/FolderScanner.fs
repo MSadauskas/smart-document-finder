@@ -28,8 +28,12 @@ module FolderScanner =
         async {
             let mutable indexed = 0
             for doc in documents do
+                printfn "📄 Indexing: %A" doc.Metadata.Path
                 match! searchEngine.IndexDocument(doc) with
-                | Ok _ -> indexed <- indexed + 1
-                | Error _ -> ()
+                | Ok _ -> 
+                    indexed <- indexed + 1
+                    printfn "✅ Successfully indexed: %A" doc.Metadata.Path
+                | Error err -> 
+                    printfn "❌ Failed to index %A: %A" doc.Metadata.Path err
             return Ok indexed
         }
