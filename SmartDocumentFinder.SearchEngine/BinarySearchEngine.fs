@@ -4,7 +4,7 @@ open SmartDocumentFinder.Core
 open SmartDocumentFinder.VectorStore
 
 type BinarySearchEngine(vectorStore: IVectorStore, documentProcessor: IDocumentProcessor, embeddingService: IEmbeddingService, ?dbPath: string) =
-    let relevanceThreshold = 0.3 // Binary threshold: relevant or not
+    let relevanceThreshold = 0.45 // More selective binary threshold
     let path = defaultArg dbPath (CrossPlatform.getDefaultDatabasePath())
     let metadataStore = DocumentMetadataStore(path)
     

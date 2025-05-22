@@ -10,9 +10,9 @@ let main argv =
     printfn "🖥️  %s" (CrossPlatform.getPlatformInfo())
     
     let testWorkflow () = async {
-        // Initialize with cross-platform paths
+        // Initialize with semantic embeddings
         let processor = DocumentService.DocumentProcessor() :> IDocumentProcessor
-        let embeddingService = SimpleEmbeddingService() :> IEmbeddingService
+        let embeddingService = SemanticEmbeddingService() :> IEmbeddingService
         let dbPath = CrossPlatform.getTestDatabasePath()
         let vectorStore = SqliteVectorStore(dbPath) :> IVectorStore
         let searchEngine = BinarySearchEngine(vectorStore, processor, embeddingService, dbPath) :> ISearchEngine
@@ -37,24 +37,34 @@ let main argv =
             | Ok indexed ->
                 printfn $"✅ Indexed {indexed} documents"
                 
-                // Test search
-                let query = {
-                    Id = QueryId (Guid.NewGuid())
-                    Text = "machine learning"
-                    Filters = Map.empty
-                    MaxResults = 5
-                    Timestamp = DateTime.Now
-                }
+                // Test semantic search with different queries
+                let testQueries = [
+                    "machine learning"
+                    "python programming"
+                    "financial report"
+                ]
                 
-                match! searchEngine.Search(query) with
-                | Ok response ->
-                    printfn $"🔍 Search results: {response.Results.Length}"
-                    for result in response.Results do
-                        printfn $"  - Score: {(let (SearchResultScore s) = result.Score in s):F3}"
-                    return true
-                | Error err -> 
-                    printfn "❌ Search failed: %A" err
-                    return false
+                let mutable querySuccess = true
+                for queryText in testQueries do
+                    let query = {
+                        Id = QueryId (Guid.NewGuid())
+                        Text = queryText
+                        Filters = Map.empty
+                        MaxResults = 5
+                        Timestamp = DateTime.Now
+                    }
+                    
+                    printfn "\n🔍 Testing query: '%s'" queryText
+                    match! searchEngine.Search(query) with
+                    | Ok response ->
+                        printfn "📊 Found %d relevant documents" response.Results.Length
+                        for result in response.Results do
+                            printfn "  ✅ Score: %.3f - %A" (let (SearchResultScore s) = result.Score in s) result.DocumentPath
+                    | Error err -> 
+                        printfn "❌ Query failed: %A" err
+                        querySuccess <- false
+                
+                return querySuccess
             | Error err -> 
                 printfn "❌ Indexing failed: %A" err
                 return false

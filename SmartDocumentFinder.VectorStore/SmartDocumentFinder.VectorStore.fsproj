@@ -12,6 +12,7 @@
     <Compile Include="ContentLookup.fs" />
     <Compile Include="EmbeddingService.fs" />
     <Compile Include="TextEmbeddingService.fs" />
+    <Compile Include="SemanticEmbeddingService.fs" />
     <Compile Include="OnnxEmbeddingService.fs" />
     <Compile Include="SqliteVectorStore.fs" />
   </ItemGroup>
