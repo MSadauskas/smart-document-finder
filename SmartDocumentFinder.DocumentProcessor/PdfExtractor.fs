@@ -19,12 +19,19 @@ module PdfExtractor =
                     return Ok ""
                 else
                     for page in pages do
-                        let pageText = page.Text
-                        text.AppendLine(pageText) |> ignore
+                        try
+                            let pageText = page.Text
+                            text.AppendLine(pageText) |> ignore
+                        with
+                        | ex -> 
+                            // Skip corrupted pages but continue with others
+                            printfn "⚠️  Skipping corrupted page in %s: %s" filePath ex.Message
                     
                     return Ok (text.ToString())
             with
             | :? FileNotFoundException -> return Error (FileNotFound filePath)
             | :? UnauthorizedAccessException -> return Error (FileAccessDenied filePath)
+            | ex when ex.Message.Contains("empty stack") -> 
+                return Error (ProcessingError $"PDF file appears to be corrupted or malformed: {System.IO.Path.GetFileName(filePath)}")
             | ex -> return Error (ProcessingError ex.Message)
         }

@@ -4,7 +4,46 @@
         x:Class="SmartDocumentFinder.UI.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="Smart Document Finder"
-        Width="1000" Height="700">
+        Width="1000" Height="700"
+        Background="#1E1E1E">
+        
+    <Window.Styles>
+        <!-- Dark Theme Styles -->
+        <Style Selector="Button">
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+        <Style Selector="Button:pointerover">
+            <Setter Property="Opacity" Value="0.85"/>
+        </Style>
+        <Style Selector="Button:pressed">
+            <Setter Property="Opacity" Value="0.7"/>
+            <Setter Property="RenderTransform" Value="scale(0.98)"/>
+        </Style>
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="#F1F1F1"/>
+            <Setter Property="BorderBrush" Value="#404040"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="10"/>
+        </Style>
+        <Style Selector="TextBox:focus">
+            <Setter Property="BorderBrush" Value="#007ACC"/>
+            <Setter Property="Background" Value="#333333"/>
+        </Style>
+        <Style Selector="TextBox /template/ Border#PART_BorderElement">
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+        <Style Selector="TextBox:watermark">
+            <Setter Property="Foreground" Value="#808080"/>
+        </Style>
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="#F1F1F1"/>
+        </Style>
+    </Window.Styles>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -14,12 +53,12 @@
         </Grid.RowDefinitions>
         
         <!-- Header -->
-        <Border Grid.Row="0" Background="#2C3E50" Padding="20">
+        <Border Grid.Row="0" Background="#0E639C" Padding="20">
             <TextBlock Text="Smart Document Finder" FontSize="24" FontWeight="Bold" Foreground="White"/>
         </Border>
         
         <!-- Controls -->
-        <Border Grid.Row="1" Background="#ECF0F1" Padding="20">
+        <Border Grid.Row="1" Background="#252526" Padding="20">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -27,36 +66,74 @@
                 </Grid.RowDefinitions>
                 
                 <!-- Scan Controls -->
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
                     <TextBox Text="{Binding FolderPath}" Watermark="Folder path..." Width="300" Margin="0,0,10,0"/>
-                    <Button Content="Browse" Click="BrowseButton_Click" Margin="0,0,10,0"/>
-                    <Button Content="Scan" Click="ScanButton_Click" Margin="0,0,10,0"/>
-                    <TextBlock Text="{Binding ScanStatus}" VerticalAlignment="Center"/>
+                    <Button Content="Browse" Click="BrowseButton_Click" Margin="0,0,10,0"
+                            Background="#0E639C" Foreground="White" Padding="12,8"/>
+                    <Button Content="Scan" Click="ScanButton_Click" Margin="0,0,15,0"
+                            Background="#107C10" Foreground="White" Padding="12,8"/>
+                    <TextBlock Text="{Binding ScanStatus}" VerticalAlignment="Center" Foreground="#CCCCCC"/>
                 </StackPanel>
                 
                 <!-- Search Controls -->
                 <StackPanel Grid.Row="1" Orientation="Horizontal">
-                    <TextBox Text="{Binding SearchText}" Watermark="Search..." Width="400" Margin="0,0,10,0"/>
-                    <Button Content="Search" Click="SearchButton_Click"/>
+                    <TextBox Text="{Binding SearchText}" Watermark="Search..." Width="400" Margin="0,0,10,0"
+                             Name="SearchTextBox" KeyDown="SearchTextBox_KeyDown"/>
+                    <Button Content="Search" Click="SearchButton_Click"
+                            Background="#D13438" Foreground="White" Padding="12,8"/>
                 </StackPanel>
             </Grid>
         </Border>
         
         <!-- Results -->
-        <ScrollViewer Grid.Row="2" Padding="20">
+        <ScrollViewer Grid.Row="2" Padding="20" Background="#1E1E1E">
             <StackPanel>
-                <TextBlock Text="{Binding StatusText}" Margin="0,0,0,10"/>
+                <TextBlock Text="{Binding StatusText}" Margin="0,0,0,15" FontSize="14" FontWeight="Medium" 
+                           Foreground="#CCCCCC"/>
                 
                 <ItemsControl ItemsSource="{Binding SearchResults}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Background="White" BorderBrush="#BDC3C7" BorderThickness="1" 
-                                    Margin="0,0,0,10" Padding="15" CornerRadius="3">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="16"/>
-                                    <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Margin="0,5,0,5"/>
-                                    <TextBlock Text="{Binding Score}" FontSize="12" Foreground="#7F8C8D"/>
-                                </StackPanel>
+                            <Border Background="#2D2D30" BorderBrush="#404040" BorderThickness="1" 
+                                    Margin="0,0,0,15" Padding="20" CornerRadius="8">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <!-- Title -->
+                                    <TextBlock Grid.Row="0" Text="{Binding Title}" FontWeight="Bold" FontSize="16" 
+                                               Foreground="#FFFFFF" Margin="0,0,0,10" TextTrimming="CharacterEllipsis"/>
+                                    
+                                    <!-- Preview Content -->
+                                    <Border Grid.Row="1" Background="#1E1E1E" Padding="12" CornerRadius="4" Margin="0,0,0,10">
+                                        <ScrollViewer MaxHeight="80" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                            <TextBlock Text="{Binding PreviewContent}" TextWrapping="Wrap" 
+                                                       Foreground="#CCCCCC" FontSize="13" 
+                                                       LineHeight="18" VerticalAlignment="Top"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                    
+                                    <!-- Score -->
+                                    <TextBlock Grid.Row="2" Text="{Binding Score}" FontSize="12" 
+                                               Foreground="#9CDCFE" Margin="0,0,0,12" FontWeight="Medium"/>
+                                    
+                                    <!-- Action Buttons -->
+                                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                                        <Button Content="📖 Preview" Padding="10,6"
+                                                Background="#6A5ACD" Foreground="White" FontSize="12"
+                                                Click="PreviewButton_Click" Tag="{Binding}" MinWidth="80"/>
+                                        <Button Content="📁 Finder" Padding="10,6"
+                                                Background="#404040" Foreground="#CCCCCC" FontSize="12"
+                                                Click="ShowInFinderButton_Click" Tag="{Binding}" MinWidth="70"/>
+                                        <Button Content="📄 Open" Padding="10,6"
+                                                Background="#0E639C" Foreground="White" FontSize="12"
+                                                Click="OpenDocumentButton_Click" Tag="{Binding}" MinWidth="70"/>
+                                    </StackPanel>
+                                </Grid>
                             </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
