@@ -10,6 +10,7 @@ type SearchQuery = {
     Filters: Map<string, string>
     MaxResults: int
     Timestamp: DateTime
+    Language: Language option  // None = search all languages
 }
 
 type SearchResult = {

@@ -80,7 +80,13 @@ type MainWindowViewModel() =
     let mutable folderPath = ""
     let mutable statusText = "Ready"
     let mutable scanStatus = ""
+    let mutable indexStatus = "Loading index info..."
+    let mutable documentCount = 0
+    let mutable languageBreakdown = ""
+    let mutable sourcePaths = ""
+    let mutable selectedLanguage = "All Languages"
     let searchResults = ObservableCollection<SearchResultViewModel>()
+    let availableLanguages = ObservableCollection<string>(["All Languages"; "English"; "Lithuanian"])
     
     let dbPath = CrossPlatform.getDefaultDatabasePath()
     let dbDir = System.IO.Path.GetDirectoryName(dbPath)
@@ -89,6 +95,7 @@ type MainWindowViewModel() =
     let vectorStore = SqliteVectorStore(dbPath) :> IVectorStore
     let searchEngine = BinarySearchEngine(vectorStore, processor, embeddingService, dbPath) :> ISearchEngine
     let metadataStore = DocumentMetadataStore(dbPath)
+    let indexInfo = DocumentIndexInfo(dbPath)
     
     do
         System.IO.Directory.CreateDirectory(dbDir) |> ignore
@@ -112,19 +119,115 @@ type MainWindowViewModel() =
         and set(value) = 
             this.RaiseAndSetIfChanged(&statusText, value) |> ignore
     
-    member this.ScanStatus 
+    member this.ScanStatus
         with get() = scanStatus
-        and set(value) = 
+        and set(value) =
             this.RaiseAndSetIfChanged(&scanStatus, value) |> ignore
-    
+
+    member this.IndexStatus
+        with get() = indexStatus
+        and set(value) =
+            this.RaiseAndSetIfChanged(&indexStatus, value) |> ignore
+
+    member this.DocumentCount
+        with get() = documentCount
+        and set(value) =
+            this.RaiseAndSetIfChanged(&documentCount, value) |> ignore
+
+    member this.LanguageBreakdown
+        with get() = languageBreakdown
+        and set(value) =
+            this.RaiseAndSetIfChanged(&languageBreakdown, value) |> ignore
+
+    member this.SourcePaths
+        with get() = sourcePaths
+        and set(value) =
+            this.RaiseAndSetIfChanged(&sourcePaths, value) |> ignore
+
+    member this.SelectedLanguage
+        with get() = selectedLanguage
+        and set(value) =
+            this.RaiseAndSetIfChanged(&selectedLanguage, value) |> ignore
+
+    member this.AvailableLanguages = availableLanguages
+
     member this.SearchResults = searchResults
     
     member this.Initialize() =
         async {
-            match! metadataStore.GetDocumentCount() with
-            | Ok count -> this.ScanStatus <- $"Database: {count} documents indexed"
-            | Error _ -> this.ScanStatus <- "Database: Ready to scan"
+            do! this.LoadIndexStatus()
         } |> Async.Start
+
+    member private this.LoadIndexStatus() =
+        async {
+            try
+                printfn "🔄 Loading index status..."
+                match! indexInfo.GetIndexStats() with
+                | Ok stats ->
+                    printfn "✅ Index stats loaded successfully"
+                    this.DocumentCount <- stats.TotalDocuments
+                    this.ScanStatus <- $"Database: {stats.TotalDocuments} documents indexed"
+
+                    // Format language breakdown
+                    let langText =
+                        stats.LanguageBreakdown
+                        |> Map.toList
+                        |> List.map (fun (lang, count) ->
+                            let langName =
+                                match lang with
+                                | "lt" -> "🇱🇹 Lithuanian"
+                                | "en" -> "🇬🇧 English"
+                                | _ -> lang
+                            $"{langName}: {count}")
+                        |> String.concat " • "
+
+                    this.LanguageBreakdown <- if langText = "" then "No documents" else langText
+
+                    // Format source paths
+                    let pathText =
+                        if stats.SourcePaths.IsEmpty then
+                            "No sources indexed"
+                        else
+                            stats.SourcePaths
+                            |> List.take (min 3 stats.SourcePaths.Length)
+                            |> List.map System.IO.Path.GetFileName
+                            |> String.concat " • "
+                            |> fun text -> if stats.SourcePaths.Length > 3 then text + $" (+{stats.SourcePaths.Length - 3} more)" else text
+
+                    this.SourcePaths <- pathText
+
+                    // Format index status
+                    let statusText =
+                        match stats.LastIndexed with
+                        | Some lastTime ->
+                            let timeAgo = DateTime.Now - lastTime
+                            if timeAgo.TotalDays < 1.0 then
+                                let timeStr = lastTime.ToString("HH:mm")
+                                $"Last indexed: {timeStr} today"
+                            elif timeAgo.TotalDays < 7.0 then
+                                let timeStr = lastTime.ToString("ddd HH:mm")
+                                $"Last indexed: {timeStr}"
+                            else
+                                let timeStr = lastTime.ToString("MMM dd")
+                                $"Last indexed: {timeStr}"
+                        | None -> "No documents indexed yet"
+
+                    this.IndexStatus <- statusText
+
+                | Error err ->
+                    printfn "❌ Error loading index stats: %A" err
+                    this.ScanStatus <- "Database: Ready to scan"
+                    this.IndexStatus <- "Unable to load index info"
+                    this.LanguageBreakdown <- "Unknown"
+                    this.SourcePaths <- "Unknown"
+            with
+            | ex ->
+                printfn "💥 Exception loading index status: %s" ex.Message
+                this.ScanStatus <- "Database: Ready to scan"
+                this.IndexStatus <- "Error loading index info"
+                this.LanguageBreakdown <- "Error"
+                this.SourcePaths <- "Error"
+        }
     
     member this.ScanFolder() =
         async {
@@ -138,7 +241,7 @@ type MainWindowViewModel() =
                 match! FolderScanner.indexDocuments searchEngine documents with
                 | Ok indexed ->
                     this.ScanStatus <- $"Indexed {indexed} documents"
-                    do! this.UpdateDocumentCount()
+                    do! this.LoadIndexStatus()  // Refresh all index info
                 | Error _ ->
                     this.ScanStatus <- "Indexing failed"
             | Error _ ->
@@ -155,16 +258,28 @@ type MainWindowViewModel() =
         }
     
     member this.Search() =
+        this.SearchDocuments()
+
+    member this.SearchDocuments() =
         async {
             this.StatusText <- "Searching..."
             searchResults.Clear()
             
+            // Create language filter based on selection
+            let languageFilter =
+                match selectedLanguage with
+                | "All Languages" -> Map.empty
+                | "English" -> Map.add "language" "en" Map.empty
+                | "Lithuanian" -> Map.add "language" "lt" Map.empty
+                | _ -> Map.empty
+
             let query = {
                 Id = QueryId (Guid.NewGuid())
                 Text = searchText
-                Filters = Map.empty
+                Filters = languageFilter
                 MaxResults = 10
                 Timestamp = DateTime.Now
+                Language = Some (LanguageDetection.detectQueryLanguage searchText)
             }
             
             try

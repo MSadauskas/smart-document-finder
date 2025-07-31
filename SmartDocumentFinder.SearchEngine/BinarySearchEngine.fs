@@ -4,10 +4,43 @@ open SmartDocumentFinder.Core
 open SmartDocumentFinder.VectorStore
 
 type BinarySearchEngine(vectorStore: IVectorStore, documentProcessor: IDocumentProcessor, embeddingService: IEmbeddingService, ?dbPath: string) =
-    let relevanceThreshold = 0.45 // More selective binary threshold
+    let relevanceThreshold = 0.75 // Very high threshold to eliminate false positives
     let path = defaultArg dbPath (CrossPlatform.getDefaultDatabasePath())
     let metadataStore = DocumentMetadataStore(path)
     let contentLookup = ContentLookup(path)
+
+    // Lithuanian terms that should trigger exact matching
+    let lithuanianTerms = Set.ofList [
+        "dokumentinis"; "filmas"; "kinas"; "video"
+        "programavimas"; "programa"; "kompiuteris"; "duomenys"
+        "technologija"; "mokymasis"; "algoritmas"
+        "verslas"; "ataskaita"; "tyrimai"; "projektas"
+    ]
+
+    let containsLithuanianTerms (text: string) =
+        let words = text.ToLowerInvariant().Split([|' '; '\t'; '\n'; '\r'|], StringSplitOptions.RemoveEmptyEntries)
+        words |> Array.exists (fun word -> lithuanianTerms.Contains(word))
+
+    let getDocumentLanguage (docId: DocumentId) : Async<Language option> =
+        async {
+            try
+                use connection = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={path};Cache=Shared;Pooling=true")
+                connection.Open()
+
+                let (DocumentId id) = docId
+                let sql = "SELECT language FROM documents WHERE id = @id"
+                use command = new Microsoft.Data.Sqlite.SqliteCommand(sql, connection)
+                command.Parameters.AddWithValue("@id", id.ToString()) |> ignore
+
+                use reader = command.ExecuteReader()
+                if reader.Read() then
+                    let langStr = reader.GetString(0)
+                    return Some (LanguageDetection.stringToLanguage langStr)
+                else
+                    return None
+            with
+            | _ -> return None
+        }
     
     interface ISearchEngine with
         member _.Search(query: SearchQuery) : Async<Result<SearchResponse, SearchError>> =
@@ -31,14 +64,43 @@ type BinarySearchEngine(vectorStore: IVectorStore, documentProcessor: IDocumentP
                                         
                                         match docInfo, chunkContent with
                                         | Some (docId, docPath), Some content ->
-                                            Some {
-                                                ChunkId = chunkId
-                                                DocumentId = docId
-                                                DocumentPath = docPath
-                                                ChunkContent = content
-                                                Score = SearchResultScore 1.0 // Binary: relevant = 1.0
-                                                Highlights = [query.Text]
-                                            }
+                                            // Check language filter from UI selection (Filters map) or auto-detection
+                                            let languageFilter =
+                                                match query.Filters.TryFind "language" with
+                                                | Some langCode -> Some (LanguageDetection.stringToLanguage langCode)
+                                                | None -> query.Language  // Fall back to auto-detected language
+
+                                            match languageFilter with
+                                            | Some targetLang ->
+                                                let docLang = getDocumentLanguage docId |> Async.RunSynchronously
+                                                match docLang with
+                                                | Some lang when lang = targetLang ->
+                                                    printfn "✅ LANGUAGE MATCH: doc=%A, filter=%A" lang targetLang
+                                                    Some {
+                                                        ChunkId = chunkId
+                                                        DocumentId = docId
+                                                        DocumentPath = docPath
+                                                        ChunkContent = content
+                                                        Score = SearchResultScore 1.0 // Binary: relevant = 1.0
+                                                        Highlights = [query.Text]
+                                                    }
+                                                | Some lang ->
+                                                    printfn "❌ LANGUAGE MISMATCH: doc=%A, filter=%A" lang targetLang
+                                                    None
+                                                | None ->
+                                                    printfn "⚠️  Could not determine document language"
+                                                    None
+                                            | None ->
+                                                // No language filter - include all results
+                                                printfn "✅ NO LANGUAGE FILTER - including result"
+                                                Some {
+                                                    ChunkId = chunkId
+                                                    DocumentId = docId
+                                                    DocumentPath = docPath
+                                                    ChunkContent = content
+                                                    Score = SearchResultScore 1.0 // Binary: relevant = 1.0
+                                                    Highlights = [query.Text]
+                                                }
                                         | _ ->
                                             printfn "⚠️  Could not lookup document info for chunk %A" chunkId
                                             None

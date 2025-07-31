@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="TestData.fs" />
+    <Compile Include="DocumentProcessorTests.fs" />
+    <Compile Include="VectorOperationsTests.fs" />
+    <Compile Include="SearchEngineTests.fs" />
+    <Compile Include="SemanticEmbeddingTests.fs" />
+    <Compile Include="CrossPlatformTests.fs" />
+    <Compile Include="PerformanceTests.fs" />
+    <Compile Include="ErrorHandlingTests.fs" />
+    <Compile Include="EndToEndTests.fs" />
+    <Compile Include="TestRunner.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../SmartDocumentFinder.Core/SmartDocumentFinder.Core.fsproj" />
+    <ProjectReference Include="../SmartDocumentFinder.DocumentProcessor/SmartDocumentFinder.DocumentProcessor.fsproj" />
+    <ProjectReference Include="../SmartDocumentFinder.VectorStore/SmartDocumentFinder.VectorStore.fsproj" />
+    <ProjectReference Include="../SmartDocumentFinder.SearchEngine/SmartDocumentFinder.SearchEngine.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.5" />
+    <PackageReference Include="UglyToad.PdfPig" Version="0.1.9-alpha001-patch1" />
+    <PackageReference Include="DocumentFormat.OpenXml" Version="3.0.1" />
+  </ItemGroup>
+
+</Project>

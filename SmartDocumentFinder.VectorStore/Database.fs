@@ -27,6 +27,7 @@ module Database =
                         format TEXT NOT NULL,
                         hash TEXT NOT NULL,
                         state TEXT NOT NULL,
+                        language TEXT NOT NULL DEFAULT 'en',
                         indexed_at TEXT
                     );
                     
@@ -56,6 +57,23 @@ module Database =
                 
                 use command = new SqliteCommand(createTablesCommand, connection)
                 command.ExecuteNonQuery() |> ignore
+
+                // Add missing columns for existing databases
+                try
+                    let addLanguageCommand = "ALTER TABLE documents ADD COLUMN language TEXT DEFAULT 'en'"
+                    use langCommand = new SqliteCommand(addLanguageCommand, connection)
+                    langCommand.ExecuteNonQuery() |> ignore
+                with
+                | ex when ex.Message.Contains("duplicate column name") -> () // Column already exists
+                | _ -> () // Ignore other errors for now
+
+                try
+                    let addIndexedAtCommand = "ALTER TABLE documents ADD COLUMN indexed_at TEXT"
+                    use indexedCommand = new SqliteCommand(addIndexedAtCommand, connection)
+                    indexedCommand.ExecuteNonQuery() |> ignore
+                with
+                | ex when ex.Message.Contains("duplicate column name") -> () // Column already exists
+                | _ -> () // Ignore other errors for now
                 return Ok ()
             with
             | ex -> return Error (StorageError ex.Message)

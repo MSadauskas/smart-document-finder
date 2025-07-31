@@ -73,6 +73,32 @@ type SemanticEmbeddingService() =
         ("guide", [|0.3f; 0.6f; 0.3f|])
         ("manual", [|0.2f; 0.6f; 0.4f|])
         ("specification", [|0.3f; 0.7f; 0.3f|])
+
+        // Lithuanian terms (highly specific mapping to prevent false positives)
+        // Media/Documentary terms - very narrow focus
+        ("dokumentinis", [|0.05f; 0.05f; 0.3f|])  // documentary (very specific to media)
+        ("filmas", [|0.05f; 0.05f; 0.4f|])        // film/movie (very specific to media)
+        ("kinas", [|0.05f; 0.05f; 0.3f|])         // cinema (very specific to media)
+        ("video", [|0.05f; 0.1f; 0.3f|])          // video (media-focused)
+
+        // Programming terms - narrow focus
+        ("programavimas", [|0.1f; 0.7f; 0.05f|])  // programming (programming-only)
+        ("programa", [|0.1f; 0.6f; 0.05f|])       // program (programming-only)
+        ("kompiuteris", [|0.3f; 0.5f; 0.05f|])    // computer (tech/programming)
+        ("duomenys", [|0.5f; 0.3f; 0.05f|])       // data (tech-focused)
+
+        // Technology terms - narrow focus
+        ("technologija", [|0.6f; 0.1f; 0.05f|])   // technology (tech-only)
+        ("mokymasis", [|0.6f; 0.1f; 0.05f|])      // learning (tech-only)
+        ("algoritmas", [|0.6f; 0.2f; 0.05f|])     // algorithm (tech-only)
+
+        // Business terms - narrow focus
+        ("verslas", [|0.05f; 0.1f; 0.6f|])        // business (business-only)
+        ("ataskaita", [|0.05f; 0.1f; 0.5f|])      // report (business-only)
+
+        // General terms
+        ("projektas", [|0.2f; 0.3f; 0.2f|])       // project (balanced)
+        ("tyrimai", [|0.3f; 0.2f; 0.2f|])         // research (balanced)
     ]
     
     let tokenize (text: string) =

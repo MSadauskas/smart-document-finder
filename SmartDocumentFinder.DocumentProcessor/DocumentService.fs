@@ -15,6 +15,16 @@ module DocumentService =
 
     let private createDocumentMetadata (filePath: string) : DocumentMetadata =
         let fileInfo = FileInfo(filePath)
+        // Try to detect language from filename or content preview
+        let language =
+            try
+                // Quick preview of file content for language detection
+                let preview = File.ReadAllText(filePath) |> fun text ->
+                    if text.Length > 500 then text.Substring(0, 500) else text
+                LanguageDetection.detectDocumentLanguage preview
+            with
+            | _ -> English // Default to English if detection fails
+
         {
             Id = DocumentId (Guid.NewGuid())
             Path = DocumentPath filePath
@@ -24,6 +34,7 @@ module DocumentService =
             Modified = fileInfo.LastWriteTime
             Format = TextExtractor.detectFormat filePath
             Hash = DocumentHash (computeFileHash filePath)
+            Language = language
         }
 
     let createDocument (filePath: string) : Document =

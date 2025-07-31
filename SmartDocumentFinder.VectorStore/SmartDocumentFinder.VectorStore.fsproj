@@ -9,6 +9,7 @@
     <Compile Include="Database.fs" />
     <Compile Include="VectorOperations.fs" />
     <Compile Include="DocumentMetadataStore.fs" />
+    <Compile Include="DocumentIndexInfo.fs" />
     <Compile Include="ContentLookup.fs" />
     <Compile Include="EmbeddingService.fs" />
     <Compile Include="TextEmbeddingService.fs" />

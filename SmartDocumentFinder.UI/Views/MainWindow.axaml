@@ -63,8 +63,9 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                
+
                 <!-- Scan Controls -->
                 <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
                     <TextBox Text="{Binding FolderPath}" Watermark="Folder path..." Width="300" Margin="0,0,10,0"/>
@@ -74,11 +75,54 @@
                             Background="#107C10" Foreground="White" Padding="12,8"/>
                     <TextBlock Text="{Binding ScanStatus}" VerticalAlignment="Center" Foreground="#CCCCCC"/>
                 </StackPanel>
-                
+
+                <!-- Index Status Panel -->
+                <Border Grid.Row="1" Background="#1E1E1E" BorderBrush="#404040" BorderThickness="1"
+                        CornerRadius="6" Padding="15" Margin="0,0,0,15">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Document Count -->
+                        <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                            <TextBlock Text="📊 Documents Indexed" FontSize="12" FontWeight="Medium"
+                                       Foreground="#9CDCFE" Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding DocumentCount}" FontSize="18" FontWeight="Bold"
+                                       Foreground="#FFFFFF"/>
+                            <TextBlock Text="{Binding IndexStatus}" FontSize="11"
+                                       Foreground="#808080" Margin="0,2,0,0"/>
+                        </StackPanel>
+
+                        <!-- Language Breakdown -->
+                        <StackPanel Grid.Column="1" Margin="0,0,15,0">
+                            <TextBlock Text="🌍 Languages" FontSize="12" FontWeight="Medium"
+                                       Foreground="#9CDCFE" Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding LanguageBreakdown}" FontSize="13"
+                                       Foreground="#CCCCCC" TextWrapping="Wrap"/>
+                        </StackPanel>
+
+                        <!-- Source Paths -->
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="📁 Sources" FontSize="12" FontWeight="Medium"
+                                       Foreground="#9CDCFE" Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding SourcePaths}" FontSize="13"
+                                       Foreground="#CCCCCC" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
                 <!-- Search Controls -->
-                <StackPanel Grid.Row="1" Orientation="Horizontal">
-                    <TextBox Text="{Binding SearchText}" Watermark="Search..." Width="400" Margin="0,0,10,0"
+                <StackPanel Grid.Row="2" Orientation="Horizontal">
+                    <TextBox Text="{Binding SearchText}" Watermark="Search..." Width="300" Margin="0,0,10,0"
                              Name="SearchTextBox" KeyDown="SearchTextBox_KeyDown"/>
+                    <ComboBox ItemsSource="{Binding AvailableLanguages}"
+                              SelectedItem="{Binding SelectedLanguage}"
+                              Width="150" Margin="0,0,10,0"
+                              Background="#2D2D30" Foreground="#CCCCCC"
+                              BorderBrush="#404040"/>
                     <Button Content="Search" Click="SearchButton_Click"
                             Background="#D13438" Foreground="White" Padding="12,8"/>
                 </StackPanel>

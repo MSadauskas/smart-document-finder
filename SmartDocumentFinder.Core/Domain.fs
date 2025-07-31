@@ -7,6 +7,11 @@ type DocumentHash = DocumentHash of string
 
 type DocumentFormat = Pdf | Word | Excel | PlainText | Unknown
 
+type Language =
+    | Lithuanian
+    | English
+    | Unknown
+
 type DocumentMetadata = {
     Id: DocumentId
     Path: DocumentPath
@@ -16,6 +21,7 @@ type DocumentMetadata = {
     Modified: DateTime
     Format: DocumentFormat
     Hash: DocumentHash
+    Language: Language
 }
 
 type DocumentState =

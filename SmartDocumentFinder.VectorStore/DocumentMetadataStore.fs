@@ -18,9 +18,9 @@ type DocumentMetadataStore(dbPath: string) =
                 let (DocumentHash hash) = document.Metadata.Hash
                 
                 let sql = """
-                    INSERT OR REPLACE INTO documents 
-                    (id, path, filename, size, created, modified, format, hash, state)
-                    VALUES (@id, @path, @filename, @size, @created, @modified, @format, @hash, @state)
+                    INSERT OR REPLACE INTO documents
+                    (id, path, filename, size, created, modified, format, hash, state, language, indexed_at)
+                    VALUES (@id, @path, @filename, @size, @created, @modified, @format, @hash, @state, @language, @indexed_at)
                 """
                 
                 use command = new SqliteCommand(sql, connection)
@@ -33,6 +33,8 @@ type DocumentMetadataStore(dbPath: string) =
                 command.Parameters.AddWithValue("@format", document.Metadata.Format.ToString()) |> ignore
                 command.Parameters.AddWithValue("@hash", hash) |> ignore
                 command.Parameters.AddWithValue("@state", "Processed") |> ignore
+                command.Parameters.AddWithValue("@language", LanguageDetection.languageToString document.Metadata.Language) |> ignore
+                command.Parameters.AddWithValue("@indexed_at", DateTime.Now.ToString("O")) |> ignore
                 
                 command.ExecuteNonQuery() |> ignore
                 return Ok ()

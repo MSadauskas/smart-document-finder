@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../SmartDocumentFinder.Core/SmartDocumentFinder.Core.fsproj" />
+    <ProjectReference Include="../SmartDocumentFinder.DocumentProcessor/SmartDocumentFinder.DocumentProcessor.fsproj" />
+    <ProjectReference Include="../SmartDocumentFinder.VectorStore/SmartDocumentFinder.VectorStore.fsproj" />
+    <ProjectReference Include="../SmartDocumentFinder.SearchEngine/SmartDocumentFinder.SearchEngine.fsproj" />
+  </ItemGroup>
+
+</Project>

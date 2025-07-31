@@ -14,7 +14,7 @@ module TextExtractor =
         | ".doc" | ".docx" -> Word
         | ".xls" | ".xlsx" -> Excel
         | ".txt" | ".md" -> PlainText
-        | _ -> Unknown
+        | _ -> DocumentFormat.Unknown
 
     let private extractPlainText (filePath: string) : Async<Result<string, DocumentError>> =
         async {
@@ -63,7 +63,7 @@ module TextExtractor =
                 return! extractWordText filePath
             | Excel ->
                 return Error (UnsupportedFormat $"Format {format} not yet implemented")
-            | Unknown ->
+            | DocumentFormat.Unknown ->
                 return Error (UnsupportedFormat $"Unknown file format: {Path.GetExtension(filePath)}")
         }
 
